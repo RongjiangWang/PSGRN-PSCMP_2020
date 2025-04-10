@@ -1,0 +1,148 @@
+#=============================================================================
+# This is input file of FORTRAN program "psgrn2020" for computing responses
+# (Green's functions) of a multi-layered viscoelastic halfspace to point
+# dislocation sources buried at different depths. All results will be stored in
+# the given directory and provide the necessary data base for the program
+# "pscmp2019" for computing time-dependent deformation, geoid and gravity changes
+# induced by an earthquake with extended fault planes via linear superposition.
+#
+# written by Rongjiang Wang
+# Helmholtz Centre Potsdam
+# GFZ German Research Centre for Geosciences
+# e-mail: wang@gfz-potsdam.de
+#
+# Last modified: Potsdam, June, 2020
+#
+#################################################################
+##                                                             ##
+## Cylindrical coordinates (Z positive downwards!) are used.   ##
+##                                                             ##
+## If not specified otherwise, SI Unit System is used overall! ##
+##                                                             ##
+#################################################################
+#
+#------------------------------------------------------------------------------
+#
+#	PARAMETERS FOR SOURCE-OBSERVATION CONFIGURATIONS
+#	================================================
+# 1. the uniform depth of the observation points [km], switch for oceanic (0)
+#    or continental(1) earthquakes;
+# 2. number of (horizontal) observation distances (> 1), start and end
+#    distances (r1, r2) [km], sampling_ratio (>= 1.0) between max. and min.
+#    sampling interval (1.0 for equidistant sampling);
+# 3. number of equidistant source depths (>= 1), start and end source
+#    depths (zs1, zs2) [km];
+#
+#    the code will determine automatically the minimum sampling
+#    interval dr_min at the start distance r1 by
+#        dr_min = [(r2-r1)/(nr-1)]*2/(1+sampling_ratio),
+#    the maximum sampling interval dr_max at the end distance r2 by
+#        dr_max = dr_min*sampling_ratio,
+#    and the equidistant sampling interval dzs of source depth by
+#        dzs = (zs2-zs1)/nzs.
+#
+#    Note that dr_min and dzs/sin(dip) will be used later by the program
+#    "pscmp2019" as the sampling intervals along strike and dip for
+#    discretizing the finite fault to a 2D grid of point sources.
+#    suggestion: select nr and nzs so that dr_min ~ dzs/sin(dip).
+#------------------------------------------------------------------------------
+       10.0       1
+  101   0.0   1000.0  10.0
+   15   0.0    30.0
+#------------------------------------------------------------------------------
+#
+#	PARAMETERS FOR TIME SAMPLING
+#	============================
+# 1. number of time samples and time window [days].
+#
+#    Note that nt (> 0) should be power of 2 (the fft-rule). If nt = 1, the
+#    coseismic (t = 0) changes will be computed; If nt = 2, the coseismic
+#    (t = 0) and steady-state (t -> infinity) changes will be computed;
+#    Otherwise, time series for the given time samples will be computed.
+#    In the case of nt <= 2, parameter for time window is meaningless.
+#
+#------------------------------------------------------------------------------
+ 2048   9125.0
+#------------------------------------------------------------------------------
+#
+#	PARAMETERS FOR WAVENUMBER INTEGRATION
+#	=====================================
+# 1. relative accuracy of the wave-number integration (suggested: 0.1 - 0.01)
+# 2. factor (> 0 and < 1) for including influence of earth's gravity on the
+#    deformation field (e.g. 0.0/1.0 = without / with 100% gravity effect).
+#------------------------------------------------------------------------------
+ 0.05
+ 1.00
+#------------------------------------------------------------------------------
+#
+#	PARAMETERS FOR OUTPUT FILES
+#	===========================
+#
+# 1. output directory
+# 2. file names for 3 displacement components (uz, ur, ut)
+# 3. file names for 6 stress components (szz, srr, stt, szr, srt, stz)
+# 4. file names for radial and tangential tilt components (as measured by a
+#    borehole tiltmeter), rigid rotation of horizontal plane, geoid and gravity
+#    changes (tr, tt, rot, gd, gr)
+#
+#    Note that all file or directory names should not be longer than 80
+#    characters. All file names should be given without extensions
+#    that will be appended automatically by ".ep" for the explosion (inflation)
+#    source, ".ss" for the strike-slip source, ".ds" for the dip-slip source,
+#    and ".cl" for the compensated linear vector dipole source)
+#
+#------------------------------------------------------------------------------
+ './grnfcts10km/'
+ 'uz'  'ur'  'ut'
+ 'szz' 'srr' 'stt' 'szr' 'srt' 'stz'
+ 'tr'  'tt'  'rot' 'gd'  'gr'
+#------------------------------------------------------------------------------
+#
+#	GLOBAL MODEL PARAMETERS
+#	=======================
+# 1. number of data lines of the layered model
+#
+#    The surface and the upper boundary of the half-space as well as the
+#    interfaces at which the viscoelastic parameters are continuous, are all
+#    defined by a single data line; All other interfaces, at which the
+#    viscoelastic parameters are discontinuous, are all defined by two data
+#    lines (upper-side and lower-side values). This input format could also be
+#    used for a graphic plot of the layered model. Layers which have different
+#    parameter values at top and bottom, will be treated as layers with a
+#    constant gradient, and will be discretised to a number of homogeneous
+#    sublayers. Errors due to the discretisation are limited within about 5%
+#    (changeable, see psgalloc.f).
+#
+# 2....	parameters of the multilayered model
+#
+#    Burgers rheology, a Kelvin-Voigt body (muk, etak) and a Maxwell body
+#    (mum, etam) in series connection, for relaxation of shear modulus is
+#    implemented. No relaxation of compressional modulus is considered.
+#
+#    etak  = (short-term) transient viscosity (dashpot of the Kelvin-Voigt body;
+#            <= 0 means infinity value)
+#    etam  = (long-term) steady-state viscosity (dashpot of the Maxwell body;
+#            <= 0 means infinity value)
+#    alpha = ratio between the effective and the unrelaxed shear modulus
+#            = muk/(muk+mum) (> 0 and <= 1)
+#
+#    Special cases:
+#        (1) Elastic: etak and etam <= 0 (i.e. infinity); alpha meaningless
+#        (2) Maxwell body: etak <= 0 (i.e. etak = infinity)
+#                          or alpha = 1 (i.e. muk = infinity)
+#        (3) Standard-Linear-Solid: etam <= 0 (i.e. infinity)
+#------------------------------------------------------------------------------
+  9                               |int: no_model_lines;
+#------------------------------------------------------------------------------
+# no  depth[km]  vp[km/s]  vs[km/s]  rho[kg/m^3] etak[Pa*s] etam[Pa*s] alpha
+#------------------------------------------------------------------------------
+1       0.0       2.5000    1.2000    2100.0     0.0E+00    0.0E+00    1.000
+2       1.5       2.5000    1.2000    2100.0     0.0E+00    0.0E+00    1.000
+3       1.5       4.5000    2.6000    2500.0     0.0E+00    0.0E+00    1.000
+4       8.0       4.5000    2.6000    2500.0     0.0E+00    0.0E+00    1.000
+5       8.0       6.2000    3.6000    2800.0     0.0E+00    0.0E+00    1.000
+6      17.0       6.2000    3.6000    2800.0     0.0E+00    0.0E+00    1.000
+7      17.0       6.4000    3.6000    2850.0     0.0E+00    0.0E+00    1.000
+8      30.0       6.4000    3.6000    2850.0     0.0E+00    0.0E+00    1.000
+9      30.0       6.8000    3.8000    2950.0     1.0E+17    1.0E+19    0.500
+#=======================end of input===========================================
