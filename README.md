@@ -22,4 +22,8 @@ After start the executable code, the program ask for an input file in the ASCII 
 
 References
 
+Okada, Y., Internal deformation due to shear and tensile faults in a half-space, Bull. Seis. Soc. Am., 82, 1018-1040, 1992.
+
+Wang, R., A simple orthonormalization method for the stable and efficient computation of Green's functions, Bull. Seism. Soc. Am., 89, 733-741, 1999.
+
 Wang, R., F. Lorenzo-Martin and F. Roth (2006), PSGRN/PSCMP - a new code for calculating co- and post-seismic deformation, geoid and gravity changes based on the viscoelastic-gravitational dislocation theory, Computers and Geosciences, 32, 527-541. doi:10.1016/j.cageo.2005.08.006
