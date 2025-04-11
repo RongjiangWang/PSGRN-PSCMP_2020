@@ -1,4 +1,4 @@
-FORTRAN code for calculating of co- and post-seismic deformation in multi-layered viscoelastic half-space based on the viscoelastic-gravitational dislocation theory.
+FORTRAN code for calculating co- and post-seismic deformation in multi-layered viscoelastic half-space based on the viscoelastic-gravitational dislocation theory.
 
 Highlights:
 
