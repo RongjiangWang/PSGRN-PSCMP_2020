@@ -6,9 +6,11 @@ Highlights:
 
 (2) finite fault model
 
-(3) gravity effect on deformation
+(3) azimuthal equidistant projection between spherical and local cartesian coordinates
 
-(4) output of complete geophysical observables (displacement, stress/strain, tilt, plate rotation, gravity and geoid changes)
+(4) gravity effect on deformation
+
+(5) output of complete geophysical observables (displacement, stress/strain, tilt, plate rotation, gravity and geoid changes)
 
 For Windows user, the executable file is provided under folder "WindowsEXE". Linux user may compile the source codes with "gfortran" via a single command like, e.g.,
 
