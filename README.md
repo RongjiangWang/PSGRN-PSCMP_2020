@@ -28,4 +28,11 @@ Okada, Y., Internal deformation due to shear and tensile faults in a half-space,
 
 Wang, R., A simple orthonormalization method for the stable and efficient computation of Green's functions, Bull. Seism. Soc. Am., 89, 733-741, 1999.
 
-Wang, R., F. Lorenzo-Martin and F. Roth (2006), PSGRN/PSCMP - a new code for calculating co- and post-seismic deformation, geoid and gravity changes based on the viscoelastic-gravitational dislocation theory, Computers and Geosciences, 32, 527-541. doi:10.1016/j.cageo.2005.08.006
+Wang, R., F. Lorenzo-Martin and F. Roth (2006), PSGRN/PSCMP - a new code for calculating co- and post-seismic deformation, geoid and gravity changes based on the viscoelastic-gravitational dislocation theory, Computers and Geosciences, 32, 527-541. doi:10.1016/j.cageo.2005.08.006.
+
+Wang, R. (2005), On the singularity problem of the elastic-gravitational dislocation theory applied to plane-Earth model, Geophysical Research Letters, 32, L06307, doi:10.1029/2003GL019358.
+
+Wang, R. (2005), The dislocation theory: a consistent way for including the gravity effect in (vis-co)elastic plane-earth models, Geophysical Journal International, 161, 191-196.
+
+Wang, R. (2007), Erratum to “The dislocation theory: a consistent way for including the gravity effect in (visco)elastic plane-earth models”, Geophysical Journal International, 170, 857.
+
