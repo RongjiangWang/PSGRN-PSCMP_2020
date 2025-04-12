@@ -8,7 +8,7 @@ c     work space
 c
       integer*4 i,l,ir,it,izs,nls,istp,isp,ntmax
       integer*4 nr1,nr2,nlr,nprf,leninp,iunit
-      real*8 am,rsmin,dratio,swap
+      real*8 am,dratio,swap
 c
       nfmin=64
       if(taumin.le.0.d0)then
@@ -167,9 +167,8 @@ c
         enddo
 c
         zrs2=(zrec-zs)**2
-        rsmin=0.5d0*dr
         do ir=1,nr
-          rs(ir)=dmax1(rsmin,0.1d0*dsqrt(zrs2+r(ir)**2))
+          rs(ir)=rsmin+0.01d0*dsqrt(zrs2+r(ir)**2)
           geow(ir)=zrs2+(rs(ir)+r(ir))**2
         enddo
 c

@@ -2,9 +2,9 @@
 c===================================================================
 c     global constants
 c===================================================================
-      real*8 km2m,day2sec,relaxmin,grfacmin
+      real*8 km2m,day2sec,relaxmin,grfacmin,rsmin
       parameter(km2m=1.0d+03,day2sec=8.64d+04,relaxmin=1.0d-06,
-     &          grfacmin=1.0d-03)
+     &          grfacmin=1.0d-03,rsmin=1.0d+01)
 c
 c     gravity, gravitational constant, earth radius
 c     ==============================================================
