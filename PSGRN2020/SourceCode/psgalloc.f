@@ -19,7 +19,7 @@ c     ==============================================================
 c
       integer*4 dnx,nxmax,nbsjmax,nfmin,nfmax2min
       parameter(dnx=512,nxmax=1024,nbsjmax=dnx*nxmax,
-     &          nfmin=128,nfmax2min=16)
+     &          nfmin=128,nfmax2min=8)
 c
 c     resolution parameters for discetize layers with gradient
 c     ==============================================================
