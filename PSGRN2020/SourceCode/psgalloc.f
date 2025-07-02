@@ -17,8 +17,9 @@ c
 c     parameters of Bessel functions
 c     ==============================================================
 c
-      integer*4 dnx,nxmax,nbsjmax
-      parameter(dnx=512,nxmax=1024,nbsjmax=dnx*nxmax)
+      integer*4 dnx,nxmax,nbsjmax,nfmin,nfmax2min
+      parameter(dnx=512,nxmax=1024,nbsjmax=dnx*nxmax,
+     &          nfmin=128,nfmax2min=16)
 c
 c     resolution parameters for discetize layers with gradient
 c     ==============================================================
@@ -48,7 +49,7 @@ c     nfmax: max. number of frequency samples
 c     nzs: number of source depths
 c     nt: number of time samples
 c
-      integer*4 nfmin,nfmax,nzsmax
+      integer*4 nfmax,nzsmax
       integer*4 nr,nt,lp,lzrec,ioc,l0,n0,ls,nzs
 c===================================================================
 c     working space

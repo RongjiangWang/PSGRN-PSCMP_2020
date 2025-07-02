@@ -10,13 +10,13 @@ c
       integer*4 nr1,nr2,nlr,nprf,leninp,iunit
       real*8 am,dratio,swap
 c
-      nfmin=64
       if(taumin.le.0.d0)then
         nfmax=nfmin
       else
         nfmax=nfmin
 150     nfmax=2*nfmax
-        if(dble(2*nfmax-1)*0.1d0*taumin.lt.twindow)goto 150
+        if(dble(2*nfmax-1)*0.1d0*taumin.lt.twindow.and.
+     &     nfmax.lt.max0(nfmax2min*nfmin,nt/2))goto 150
       endif
 c
       allocate(tgrn(2*nfmax),stat=ierr)

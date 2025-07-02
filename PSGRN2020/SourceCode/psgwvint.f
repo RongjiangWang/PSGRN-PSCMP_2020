@@ -35,9 +35,6 @@ c
       complex*16 uza,ura,uta,esfa,urza,utza,etta,erta
       complex*16 szza,srra,stta,szra,srta,szta
 c
-      real*8 eps
-      data eps/1.0d-03/
-c
       pi=4.d0*datan(1.d0)
       pi2=2.d0*pi
 c

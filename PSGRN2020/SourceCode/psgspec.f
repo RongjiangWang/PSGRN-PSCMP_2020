@@ -17,10 +17,10 @@ c
 c
       integer*4 nkmax
       real*8 eps,pi2
-      data nkmax/100000/
+      data nkmax/8192/
       data eps,pi2/0.05d0,6.28318530717959d0/
 
-      print *,' ==============================================='
+      print *,' =================================================='
       write(*,'(i3,a,F12.4,a,f12.4,a)')isp,'. sub-profile: ',
      &        r(nr1)/km2m,' -> ',r(nr2)/km2m,' km'
 c
@@ -28,17 +28,19 @@ c     determine wavenumber sampling rate
 c
       rc=rs(nr1)+0.5d0*(r(nr1)+r(nr2))
       kc=pi2/rc
-      dk0=eps*pi2/dsqrt((zrec-zs)**2+rc**2)
+      dk0=0.5d0*pi2/dsqrt((zrec-zs)**2+rc**2)
       thick=0.d0
       do l=1,lp-1
         thick=thick+hp(l)
       enddo
-      dkmin=eps*accuracy*pi2/dsqrt(thick**2+rc**2)
+      dkmin=dmin1(eps,accuracy)*pi2/dsqrt(thick**2+rc**2)
 c
 c     determine frequency sampling rate
 c
       dfg=1.d0/(2.d0*dble(nt)*dt)
       alpha=pi2*dfg
+c
+      tty=.false.
 c
 c     istate = -1: elastic case
 c
@@ -53,7 +55,7 @@ c
         enddo
       enddo
 100   nkc=idint(2.d0*kc/dk)
-      call psgwvint(istate,1,nr1,nr2,cs,nkc,nkmax,dk,.false.)
+      call psgwvint(istate,1,nr1,nr2,cs,nkc,nkmax,dk,tty)
       again=.false.
       do istp=1,4
         dspabs(istp)=0.d0
@@ -116,7 +118,7 @@ c
         goto 100
       endif
       if(again)then
-        print *,' Warning in psgspec: required acc. not satisfied!'
+        print *,' Warning #1 in psgspec: required acc. not satisfied!'
         nwarn=nwarn+1
       endif
 c
@@ -131,7 +133,7 @@ c
         enddo
       enddo
 200   nkc=idint(2.d0*kc/dk)
-      call psgwvint(istate,1,nr1,nr2,cs,nkc,nkmax,dk,.false.)
+      call psgwvint(istate,1,nr1,nr2,cs,nkc,nkmax,dk,tty)
       again=.false.
       do istp=1,4
         dspabs(istp)=0.d0
@@ -176,7 +178,7 @@ c
           grvmax(istp)=grvmax(istp)+geow(ir)*cdabs(du(1,ir,14,istp))
         enddo
         again=again
-     &        .or.dspabs(istp).gt.accuracy*dspmax(istp)
+     &        .or.dspabs(istp).gt.0.01d0*accuracy*dspmax(istp)
      &        .or.stsabs(istp).gt.accuracy*stsmax(istp)
      &        .or.stnabs(istp).gt.accuracy*stnmax(istp)
      &        .or.potabs(istp).gt.accuracy*potmax(istp)
@@ -194,13 +196,15 @@ c
         goto 200
       endif
       if(again)then
-        print *,' Warning in psgspec: required acc. not satisfied!'
+        print *,' Warning #2 in psgspec: required acc. not satisfied!'
         nwarn=nwarn+1
       endif
 c
+      tty=.true.
+c
       istate=-1
       cs=(0.d0,0.d0)
-      call psgwvint(istate,-1,nr1,nr2,cs,nkc,nkmax,dk,.true.)
+      call psgwvint(istate,-1,nr1,nr2,cs,nkc,nkmax,dk,tty)
 c
       if(nt.eq.1)then
         do istp=1,4
@@ -220,7 +224,7 @@ c
       if(nt.eq.2)then
         istate=0
         cs=(0.d0,0.d0)
-        call psgwvint(istate,0,nr1,nr2,cs,nkc,nkmax,dk,.true.)
+        call psgwvint(istate,0,nr1,nr2,cs,nkc,nkmax,dk,tty)
         do istp=1,4
           do i=1,14
             do ir=nr1,nr2
@@ -249,7 +253,7 @@ c
       nfg=1
 300   fcut=dble(nfg-1)*dfg
       cs=dcmplx(alpha,pi2*fcut)
-      call psgwvint(istate,lf,nr1,nr2,cs,nkc,nkmax,dk,.true.)
+      call psgwvint(istate,lf,nr1,nr2,cs,nkc,nkmax,dk,tty)
       do istp=1,4
         do i=1,14
           do ir=nr1,nr2
@@ -309,14 +313,19 @@ c
       fcut=dble(nfg-1)*dfg
       write(*,'(i6,a,E12.5,a)')nfg,' frequencies will be used,'
      &                             //' cut-off: ',fcut,'Hz'
-      print *,' ==============================================='
+      print *,' ======================================================'
 c
       istate=1
-      jf=1+nfg/10
+      jf=1
       do lf=1,nfg
         f=dble(lf-1)*dfg
         cs=dcmplx(alpha,pi2*f)
-        tty=lf.eq.1.or.lf.eq.nfg.or.mod(lf,jf).eq.1
+        if(lf.eq.jf)then
+          tty=.true.
+          jf=jf*2
+        else
+          tty=.false.
+        endif
         call psgwvint(istate,lf,nr1,nr2,cs,nkc,nkmax,dk,tty)
       enddo
 c
