@@ -173,7 +173,7 @@ c
         enddo
 c
         swap=dsqrt(zrs2+(rs(nr)+r(nr))**2)/dsqrt(zrs2+(rs(1)+r(1))**2)
-        nprf=1+idnint(dlog(swap)/dlog(2.5d0))
+        nprf=1+idnint(dlog(swap)/dlog(5.d0))
         if(nprf.gt.1)then
           dratio=swap**(1.d0/dble(nprf-1))
         else
