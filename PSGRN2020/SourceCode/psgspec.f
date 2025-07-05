@@ -5,7 +5,7 @@ c
       integer*4 isp,nr1,nr2
 c
       integer*4 i,ir,istp,l,lf,jf,istate,it,its,itga,itgb
-      integer*4 ntg,nfg,nkc,ierr
+      integer*4 ntg,nfg,nkc,ierr,nkmax
       real*8 f,dfg,t,dtg,fc,fcut,rc,kc,dk0,dk
       real*8 a,b,alpha,beta,thick,dkmin
       real*8 fgrnabs,fgrnmax
@@ -15,9 +15,9 @@ c
       complex*16 dum(14,4),dum0(14,4)
       logical*2 again,dfgfound,lowpass,tty
 c
-      integer*4 nkmax
+      integer*4 nkcut
       real*8 eps,pi2
-      data nkmax/8192/
+      data nkcut/8192/
       data eps,pi2/0.05d0,6.28318530717959d0/
 
       print *,' =================================================='
@@ -34,6 +34,11 @@ c
         thick=thick+hp(l)
       enddo
       dkmin=dmin1(eps,accuracy)*pi2/dsqrt(thick**2+rc**2)
+      if(accuracy.lt.eps)then
+        nkmax=nkcut*idnint(eps/accuracy)
+      else
+        nkmax=nkcut
+      endif
 c
 c     determine frequency sampling rate
 c
@@ -178,7 +183,7 @@ c
           grvmax(istp)=grvmax(istp)+geow(ir)*cdabs(du(1,ir,14,istp))
         enddo
         again=again
-     &        .or.dspabs(istp).gt.0.01d0*accuracy*dspmax(istp)
+     &        .or.dspabs(istp).gt.accuracy*dspmax(istp)
      &        .or.stsabs(istp).gt.accuracy*stsmax(istp)
      &        .or.stnabs(istp).gt.accuracy*stnmax(istp)
      &        .or.potabs(istp).gt.accuracy*potmax(istp)
