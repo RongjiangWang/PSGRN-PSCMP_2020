@@ -35,7 +35,7 @@ c
       enddo
       dkmin=dmin1(eps,accuracy)*pi2/dsqrt(thick**2+rc**2)
       if(accuracy.lt.eps)then
-        nkmax=nkcut*idnint(eps/accuracy)
+        nkmax=idnint(dble(nkcut)*eps/accuracy)
       else
         nkmax=nkcut
       endif
