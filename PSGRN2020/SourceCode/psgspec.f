@@ -6,7 +6,7 @@ c
 c
       integer*4 i,ir,istp,l,lf,jf,istate,it,its,itga,itgb
       integer*4 ntg,nfg,nkc,ierr,nkmax
-      real*8 f,dfg,t,dtg,fc,fcut,rc,kc,dk0,dk
+      real*8 f,fi,dfg,t,dtg,fc,fcut,rc,kc,dk0,dk,tau
       real*8 a,b,alpha,beta,thick,dkmin
       real*8 fgrnabs,fgrnmax
       real*8 dspabs(4),stsabs(4),stnabs(4),potabs(4),grvabs(4)
@@ -17,7 +17,7 @@ c
 c
       integer*4 nkcut
       real*8 eps,pi2
-      data nkcut/8192/
+      data nkcut/2048/
       data eps,pi2/0.05d0,6.28318530717959d0/
 
       print *,' =================================================='
@@ -33,7 +33,8 @@ c
       do l=1,lp-1
         thick=thick+hp(l)
       enddo
-      dkmin=dmin1(eps,accuracy)*pi2/dsqrt(thick**2+rc**2)
+      dkmin=eps*pi2/dsqrt(thick**2+rc**2)
+c
       if(accuracy.lt.eps)then
         nkmax=idnint(dble(nkcut)*eps/accuracy)
       else
@@ -123,13 +124,13 @@ c
         goto 100
       endif
       if(again)then
-        print *,' Warning #1 in psgspec: required acc. not satisfied!'
+        print *,' Warning #1 in psgspec: accuracy worse than required!'
         nwarn=nwarn+1
       endif
 c
       istate=1
       cs=dcmplx(alpha,dfg)
-      dk=4.d0*dk
+      dk=16.d0*dk
       do istp=1,4
         do i=1,14
           do ir=nr1,nr2
@@ -201,7 +202,7 @@ c
         goto 200
       endif
       if(again)then
-        print *,' Warning #2 in psgspec: required acc. not satisfied!'
+        print *,' Warning #2 in psgspec: accuracy worse than required!'
         nwarn=nwarn+1
       endif
 c
@@ -304,16 +305,14 @@ c
         goto 300
       endif
 c
+      lowpass=again
+c
 c     cut-off frequency found
 c
       if(nfg.gt.nfmax)then
         nfg=nfmax
-        lowpass=.true.
       else if(nfg.lt.nfmin)then
         nfg=nfmin
-        lowpass=.false.
-      else
-        lowpass=.false.
       endif
       fcut=dble(nfg-1)*dfg
       write(*,'(i6,a,E12.5,a)')nfg,' frequencies will be used,'
@@ -339,6 +338,12 @@ c
       dtg=1.d0/(dble(2*nfg)*dfg)
       ntg=2*nfg
 c
+      if(lowpass)then
+        tau=4.0d0*dtg
+        fi=-alpha/PI2
+        call swavelet(tau,dfg,fi,nfg,wvf)
+      endif
+c
       do istp=1,4
         do i=1,14
           if(select(i,istp))then
@@ -348,27 +353,10 @@ c
               enddo
               if(lowpass)then
 c
-c               low-pass filter has to be used
-c
-c               find a proper corner frequency as high as possible
-c
-                fc=fcut/eps
-600             fgrnmax=0.d0
-                beta=1.d0+alpha/(pi2*fc)
-                do lf=1,nfg
-                  fgrnabs=cdabs(fgrn(lf))/(beta**2
-     &                   +(dble(lf-1)*dfg/fc)**2)**1.5d0
-                  fgrnmax=dmax1(fgrnmax,fgrnabs)
-                enddo
-                if(fgrnabs.gt.eps*fgrnmax)then
-                  fc=0.75d0*fc
-                  goto 600
-                endif
-c
 c               use low-pass filter with the corner frequency found
 c
                 do lf=1,nfg
-                  fgrn(lf)=fgrn(lf)/(dcmplx(beta,dble(lf-1)*dfg/fc))**3
+                  fgrn(lf)=fgrn(lf)*wvf(lf)
                 enddo
               endif
 	        jf=1
@@ -383,11 +371,11 @@ c	        f(t)=\int F(f) exp(i2\pi f t) df
 c
 	        call four1w(fgrn,dswap,2*nfg,+1)
 c
-c             calculate response to the Heaviside source history
+c             calculate response to Heaviside source (corresponding to displacement)
 c
               tgrn(1)=0.d0
               do it=2,ntg
-                tgrn(it)=tgrn(it-1)+dreal(fgrn(it-1))
+                tgrn(it)=tgrn(it-1)+0.5d0*dreal(fgrn(it-1)+fgrn(it))
      &                  *dtg*dfg*dexp(alpha*dble(it-1)*dtg)
               enddo
 c

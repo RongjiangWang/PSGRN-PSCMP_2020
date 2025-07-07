@@ -17,9 +17,9 @@ c
 c     parameters of Bessel functions
 c     ==============================================================
 c
-      integer*4 dnx,nxmax,nbsjmax,nfmin,nfmax2min
+      integer*4 dnx,nxmax,nbsjmax,nfmin,nfmax2min,ndigit
       parameter(dnx=512,nxmax=1024,nbsjmax=dnx*nxmax,
-     &          nfmin=128,nfmax2min=8)
+     &          nfmin=128,nfmax2min=8,ndigit=6)
 c
 c     resolution parameters for discetize layers with gradient
 c     ==============================================================
@@ -91,6 +91,6 @@ c===================================================================
       real*8, allocatable:: r(:),rs(:),geow(:)
       complex*16, allocatable:: obs(:,:,:),obs0(:,:,:),du(:,:,:,:)
       real*8, allocatable:: tgrn(:),dobs(:),dswap(:)
-      complex*16, allocatable:: fgrn(:)
+      complex*16, allocatable:: fgrn(:),wvf(:)
 c
       end module

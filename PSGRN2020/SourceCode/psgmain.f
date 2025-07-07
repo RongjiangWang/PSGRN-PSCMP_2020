@@ -49,30 +49,20 @@ c
       call psgprocess(ierr)
 c
       runtime=time()-runtime
+      write(*,'(a)')'################################################'
+      write(*,'(a)')'#                                              #'
+      write(*,'(a)')'#        End of computations with PSGRN        #'
+      write(*,'(a)')'#                                              #'
       if(nwarn.eq.0)then
-        write(*,'(a)')'################################################'
-        write(*,'(a)')'#                                              #'
-        write(*,'(a)')'#        End of computations with PSGRN        #'
-        write(*,'(a)')'#                                              #'
         write(*,'(a,i10,a)')'#        Run time: ',runtime,
      &                                             ' sec              #'
-        write(*,'(a)')'################################################'
-      else if(nwarn.lt.10)then
-        write(*,'(a)')'################################################'
-        write(*,'(a,i10,a)')'#        Run time: ',runtime,
-     &                                             ' sec              #'
-        write(*,'(a,i2,a)')'   Sorry, there have been',nwarn,
-     &                     ' warnings.    '
-        write(*,'(a)')'           Results may be inaccurate!           '
-        write(*,'(a)')'################################################'
       else
-        write(*,'(a)')'################################################'
         write(*,'(a,i10,a)')'#        Run time: ',runtime,
      &                                             ' sec              #'
-        write(*,'(a)')'  Sorry, there have been more than 10 warnings  '
-        write(*,'(a)')'           Results may be inaccurate!           '
-        write(*,'(a)')'################################################'
+        write(*,'(a,i10,a)')'#        Warnings: ',nwarn,
+     &                     '                  #'
       endif
+      write(*,'(a)')'################################################'
 c
       stop
       end

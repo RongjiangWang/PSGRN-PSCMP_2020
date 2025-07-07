@@ -23,6 +23,8 @@ c
       if(ierr.ne.0)stop ' Error in psgprocess: tgrn not allocated!'
       allocate(fgrn(2*nfmax),stat=ierr)
       if(ierr.ne.0)stop ' Error in psgprocess: fgrn not allocated!'
+      allocate(wvf(nfmax),stat=ierr)
+      if(ierr.ne.0)stop ' Error in psgprocess: wvf not allocated!'
       allocate(dswap(4*nfmax),stat=ierr)
       if(ierr.ne.0)stop ' Error in psgprocess: dswap not allocated!'
 c
@@ -213,7 +215,7 @@ c
               if(am.le.0.d0)then
                 idec(ir)=0
               else
-                idec(ir)=idint(dlog10(am))-4
+                idec(ir)=idint(dlog10(am))-ndigit
                 do it=1,(nt+1)/2
                   du(it,ir,i,istp)=du(it,ir,i,istp)
      &                  *dcmplx(10.d0**(-idec(ir)),0.d0)
