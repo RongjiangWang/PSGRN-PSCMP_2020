@@ -18,7 +18,7 @@ For Windows user, the executable file is provided under folder "WindowsEXE". Lin
 
 ~>gfortran -o psgrn2020 *.f -O3
 
-to get the excutable code pagrn2020.
+to get the excutable code psgrn2020.
 
 After start the executable code, the program ask for an input file in the ASCII format. An example input file is provided under folder "InputFile". You may change the input data included in this file for your own applications.
 
