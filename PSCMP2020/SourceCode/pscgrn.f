@@ -400,7 +400,7 @@ c
 c             calculate back azimuth
 c
               call disazi(REARTH,latrec(irec),lonrec(irec),
-     &                    latrec(irec),lonrec(irec),disn,dise)
+     &                    plat(ips,izs),plon(ips,izs),disn,dise)
               if(dis.gt.0.d0)then
                 bazi=datan2(dise,disn)+PI
               else
