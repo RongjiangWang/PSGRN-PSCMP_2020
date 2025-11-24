@@ -1,5 +1,5 @@
 #=======================================================================================================
-# This is input file of FORTRAN program "pscmp2020" for modeling post-seismic deformation induced by
+# This is input file of FORTRAN program "pscmp2020a" for modeling post-seismic deformation induced by
 # earthquakes in multi-layered viscoelastic-gravitational media using the Green's function approach. The
 # earthquke source is represented by an arbitrary number of rectangular dislocation planes.
 #
@@ -20,11 +20,9 @@
 ## is used, that is, x is northward, y is eastward, and z is   ##
 ## downward.                                                   ##
 ##                                                             ##
-## The azimuthal equidistant projection is used to map the     ##
-## spherical earth surface to a plane earth surface: All       ##
-## points on the map are at proportionally correct distances   ##
-## from the center point, and all points on the map are at the ##
-## correct azimuth (direction) from the center point.          ##
+## The azimuthal equidistant projection is used to map the the ##
+## spherical earth to the planar earth individually for each   ##
+## source-receiver pair.                                       ##
 ##                                                             ##
 ## If not specified otherwise, SI Unit System is used overall! ##
 ##                                                             ##
@@ -441,4 +439,3 @@
   292.50   37.50   -0.06   -0.02    0.00
   307.50   37.50    0.09   -0.02    0.00
 #==========================================end of input=================================================
-
