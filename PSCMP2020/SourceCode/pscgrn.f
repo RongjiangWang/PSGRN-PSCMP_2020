@@ -27,8 +27,8 @@ c~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       integer*4 i,j,n,irec,ips,ir,ieq,is,js,izs,nzs1,nzs2,nsmall
       integer*4 it,itr,itstart,lend,lenf,id1,id2,istp,npsum,nlarge
       integer*4 isnap,jsnap
-      real*8 si,co,si2,co2,expo,tmax,wei
-      real*8 dis,dise,disn,azi,ur,ut,uz
+      real*8 si,co,si2,co2,bsi,bco,bsi2,bco2,expo,tmax,wei
+      real*8 dis,dise,disn,azi,bazi,ur,ut,uz
       real*8 szz,srr,stt,szr,srt,stz
       real*8 tr,tt,rot,gd,gr
       real*8 dr,dract,dt
@@ -397,6 +397,20 @@ c
               co2=dcos(2.d0*azi)
               si2=dsin(2.d0*azi)
 c
+c             calculate back azimuth
+c
+              call disazi(REARTH,latrec(irec),lonrec(irec),
+     &                    latrec(irec),lonrec(irec),disn,dise)
+              if(dis.gt.0.d0)then
+                bazi=datan2(dise,disn)+PI
+              else
+                bazi=0.d0
+              endif
+              bco=dcos(bazi)
+              bsi=dsin(bazi)
+              bco2=dcos(2.d0*bazi)
+              bsi2=dsin(2.d0*bazi)
+c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c             pmwei(1-6):
 c             1 = weight for strike-slip: m12=m21=1;
@@ -516,22 +530,22 @@ c
               gr=gr+pscl*(d1*cogrns(id1,14,4)+d2*cogrns(id2,14,4))
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               ieq=ieqno(is)
-              coobs(ieq,irec,1)=coobs(ieq,irec,1)+ur*co-ut*si
-              coobs(ieq,irec,2)=coobs(ieq,irec,2)+ur*si+ut*co
+              coobs(ieq,irec,1)=coobs(ieq,irec,1)+ur*bco-ut*bsi
+              coobs(ieq,irec,2)=coobs(ieq,irec,2)+ur*bsi+ut*bco
               coobs(ieq,irec,3)=coobs(ieq,irec,3)+uz
 c
-              coobs(ieq,irec,4)=coobs(ieq,irec,4)+srr*co*co
-     &                                       +stt*si*si-srt*si2
-              coobs(ieq,irec,5)=coobs(ieq,irec,5)+srr*si*si
-     &                                       +stt*co*co+srt*si2
+              coobs(ieq,irec,4)=coobs(ieq,irec,4)+srr*bco*bco
+     &                                       +stt*bsi*bsi-srt*bsi2
+              coobs(ieq,irec,5)=coobs(ieq,irec,5)+srr*bsi*bsi
+     &                                       +stt*bco*bco+srt*bsi2
               coobs(ieq,irec,6)=coobs(ieq,irec,6)+szz
-              coobs(ieq,irec,7)=coobs(ieq,irec,7)+0.5d0*(srr-stt)*si2
-     &                                       +srt*co2
-              coobs(ieq,irec,8)=coobs(ieq,irec,8)+szr*si+stz*co
-              coobs(ieq,irec,9)=coobs(ieq,irec,9)+szr*co-stz*si
+              coobs(ieq,irec,7)=coobs(ieq,irec,7)+0.5d0*(srr-stt)*bsi2
+     &                                       +srt*bco2
+              coobs(ieq,irec,8)=coobs(ieq,irec,8)+szr*bsi+stz*bco
+              coobs(ieq,irec,9)=coobs(ieq,irec,9)+szr*bco-stz*bsi
 c
-              coobs(ieq,irec,10)=coobs(ieq,irec,10)+tr*co-tt*si
-              coobs(ieq,irec,11)=coobs(ieq,irec,11)+tr*si+tt*co
+              coobs(ieq,irec,10)=coobs(ieq,irec,10)+tr*bco-tt*bsi
+              coobs(ieq,irec,11)=coobs(ieq,irec,11)+tr*bsi+tt*bco
 c
               coobs(ieq,irec,12)=coobs(ieq,irec,12)+rot
 c
@@ -639,26 +653,28 @@ c
                   gd=gd+pscl*(d1*grns(it,id1,13,4)+d2*grns(it,id2,13,4))
                   gr=gr+pscl*(d1*grns(it,id1,14,4)+d2*grns(it,id2,14,4))
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-                  poobs(ieq,irec,1)=poobs(ieq,irec,1)+wei*(ur*co-ut*si)
-                  poobs(ieq,irec,2)=poobs(ieq,irec,2)+wei*(ur*si+ut*co)
+                  poobs(ieq,irec,1)=poobs(ieq,irec,1)
+     &                             +wei*(ur*bco-ut*bsi)
+                  poobs(ieq,irec,2)=poobs(ieq,irec,2)
+     &                             +wei*(ur*bsi+ut*bco)
                   poobs(ieq,irec,3)=poobs(ieq,irec,3)+wei*uz
 c
                   poobs(ieq,irec,4)=poobs(ieq,irec,4)
-     &                             +wei*(srr*co*co+stt*si*si-srt*si2)
+     &                             +wei*(srr*co*co+stt*bsi*bsi-srt*bsi2)
                   poobs(ieq,irec,5)=poobs(ieq,irec,5)
-     &                             +wei*(srr*si*si+stt*co*co+srt*si2)
+     &                             +wei*(srr*si*si+stt*bco*bco+srt*bsi2)
                   poobs(ieq,irec,6)=poobs(ieq,irec,6)+wei*szz
                   poobs(ieq,irec,7)=poobs(ieq,irec,7)
-     &                             +wei*(0.5d0*(srr-stt)*si2+srt*co2)
+     &                             +wei*(0.5d0*(srr-stt)*bsi2+srt*bco2)
                   poobs(ieq,irec,8)=poobs(ieq,irec,8)
-     &                             +wei*(szr*si+stz*co)
+     &                             +wei*(szr*bsi+stz*bco)
                   poobs(ieq,irec,9)=poobs(ieq,irec,9)
-     &                             +wei*(szr*co-stz*si)
+     &                             +wei*(szr*bco-stz*bsi)
 c
                   poobs(ieq,irec,10)=poobs(ieq,irec,10)
-     &                              +wei*(tr*co-tt*si)
+     &                              +wei*(tr*bco-tt*bsi)
                   poobs(ieq,irec,11)=poobs(ieq,irec,11)
-     &                              +wei*(tr*si+tt*co)
+     &                              +wei*(tr*bsi+tt*bco)
 c
                   poobs(ieq,irec,12)=poobs(ieq,irec,12)+wei*rot
 c
@@ -766,22 +782,22 @@ c
                 gd=gd+pscl*(d1*grns(it,id1,13,4)+d2*grns(it,id2,13,4))
                 gr=gr+pscl*(d1*grns(it,id1,14,4)+d2*grns(it,id2,14,4))
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-                obs(itr,irec,1)=obs(itr,irec,1)+ur*co-ut*si
-                obs(itr,irec,2)=obs(itr,irec,2)+ur*si+ut*co
+                obs(itr,irec,1)=obs(itr,irec,1)+ur*bco-ut*bsi
+                obs(itr,irec,2)=obs(itr,irec,2)+ur*bsi+ut*bco
                 obs(itr,irec,3)=obs(itr,irec,3)+uz
 c
-                obs(itr,irec,4)=obs(itr,irec,4)+srr*co*co
-     &                                           +stt*si*si-srt*si2
-                obs(itr,irec,5)=obs(itr,irec,5)+srr*si*si
-     &                                           +stt*co*co+srt*si2
+                obs(itr,irec,4)=obs(itr,irec,4)+srr*bco*bco
+     &                                           +stt*bsi*bsi-srt*bsi2
+                obs(itr,irec,5)=obs(itr,irec,5)+srr*bsi*bsi
+     &                                           +stt*bco*bco+srt*bsi2
                 obs(itr,irec,6)=obs(itr,irec,6)+szz
-                obs(itr,irec,7)=obs(itr,irec,7)+0.5d0*(srr-stt)*si2
-     &                                           +srt*co2
-                obs(itr,irec,8)=obs(itr,irec,8)+szr*si+stz*co
-                obs(itr,irec,9)=obs(itr,irec,9)+szr*co-stz*si
+                obs(itr,irec,7)=obs(itr,irec,7)+0.5d0*(srr-stt)*bsi2
+     &                                           +srt*bco2
+                obs(itr,irec,8)=obs(itr,irec,8)+szr*bsi+stz*bco
+                obs(itr,irec,9)=obs(itr,irec,9)+szr*bco-stz*bsi
 c
-                obs(itr,irec,10)=obs(itr,irec,10)+tr*co-tt*si
-                obs(itr,irec,11)=obs(itr,irec,11)+tr*si+tt*co
+                obs(itr,irec,10)=obs(itr,irec,10)+tr*bco-tt*bsi
+                obs(itr,irec,11)=obs(itr,irec,11)+tr*bsi+tt*bco
 c
                 obs(itr,irec,12)=obs(itr,irec,12)+rot
 c
