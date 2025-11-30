@@ -95,7 +95,7 @@ c
             call disazi(REARTH,latrec(irec),lonrec(irec),
      &                  latref(is),lonref(is),disn,dise)
             bazi=datan2(dise,disn)
-            phi=bazi-PI-azi
+            phi=azi-(bazi-PI)
             rot(1,1)=dcos(phi)
             rot(1,2)=-dsin(phi)
             rot(1,3)=0.d0
