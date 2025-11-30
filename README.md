@@ -37,4 +37,4 @@ Wang, R. (2005), The dislocation theory: a consistent way for including the grav
 Wang, R. (2007), Erratum to “The dislocation theory: a consistent way for including the gravity effect in (visco)elastic plane-earth models”, Geophysical Journal International, 170, 857.
 
 ---------------------------------------------------------
-Last update on Nov 24, 2025, in Zhuhai, by Rongjiang Wang
+Last update on Nov 30, 2025, in Zhuhai, by Rongjiang Wang
