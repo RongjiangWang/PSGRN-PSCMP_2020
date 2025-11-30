@@ -22,11 +22,11 @@ c
 c     LOCAL WORK SPACES
 c     =================
 c~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      integer*4 ieq,is,iptch,irec
+      integer*4 i,j,k,l,ieq,is,iptch,irec
       real*8 st,di,step_s,step_d,disn,dise
       real*8 csst,ssst,csra,ssra,csdi,ssdi
-      real*8 cs2st,ss2st,eii
-      real*8 strain(6)
+      real*8 cs2st,ss2st,eii,phi,azi,bazi
+      real*8 strain(6),sig(3,3),rot(3,3),swp(3,3)
 c
 c~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 c     PROCESSING:
@@ -78,7 +78,6 @@ c
 c
 c         for extended source
 c
-c
           AL1=sngl(ptch_s(is,iptch)-0.5d0*step_s)
           AL2=sngl(ptch_s(is,iptch)+0.5d0*step_s)
           AW1=sngl(-ptch_d(is,iptch)-0.5d0*step_d)
@@ -91,6 +90,22 @@ c
      &                  latrec(irec),lonrec(irec),disn,dise)
             X=sngl(disn*csst+dise*ssst)
             Y=sngl(disn*ssst-dise*csst)
+c
+            azi=datan2(dise,disn)
+            call disazi(REARTH,latrec(irec),lonrec(irec),
+     &                  latref(is),lonref(is),disn,dise)
+            bazi=datan2(dise,disn)
+            phi=bazi-PI-azi
+            rot(1,1)=dcos(phi)
+            rot(1,2)=-dsin(phi)
+            rot(1,3)=0.d0
+            rot(2,1)=dsin(phi)
+            rot(2,2)=dcos(phi)
+            rot(2,3)=0.d0
+            rot(3,1)=0.d0
+            rot(3,2)=0.d0
+            rot(3,3)=1.d0
+c
             IRET=1
             call DC3D(ALPHA,X,Y,Z,DEPTH,DIPS,AL1,AL2,AW1,AW2,
      &            DISL1,DISL2,DISL3,UX,UY,UZ,
@@ -98,23 +113,49 @@ c
 c
 c           transform from Okada's to Aki's system
 c
-            coobs(ieq,irec,1)=coobs(ieq,irec,1)
-     &                      +dble(UX)*csst+dble(UY)*ssst
-            coobs(ieq,irec,2)=coobs(ieq,irec,2)
-     &                      +dble(UX)*ssst-dble(UY)*csst
-            coobs(ieq,irec,3)=coobs(ieq,irec,3)-dble(UZ)
+            swp(1,1)=dble(UX)*csst+dble(UY)*ssst
+            swp(2,1)=dble(UX)*ssst-dble(UY)*csst
+            swp(3,1)=-dble(UZ)
 c
-            strain(1)=dble(UXX)*csst*csst+dble(UYY)*ssst*ssst
+            coobs(ieq,irec,1)=coobs(ieq,irec,1)
+     &                       +rot(1,1)*swp(1,1)+rot(1,2)*swp(2,1)
+            coobs(ieq,irec,2)=coobs(ieq,irec,2)
+     &                       +rot(2,1)*swp(1,1)+rot(2,2)*swp(2,1)
+            coobs(ieq,irec,3)=coobs(ieq,irec,3)+swp(3,1)
+c
+            swp(1,1)=dble(UXX)*csst*csst+dble(UYY)*ssst*ssst
      &               +0.5d0*dble(UXY+UYX)*ss2st
-            strain(2)=dble(UXX)*ssst*ssst+dble(UYY)*csst*csst
+            swp(2,2)=dble(UXX)*ssst*ssst+dble(UYY)*csst*csst
      &               -0.5d0*dble(UXY+UYX)*ss2st
-            strain(3)=dble(UZZ)
-            strain(4)=0.5d0*dble(UXX-UYY)*ss2st
+            swp(3,3)=dble(UZZ)
+            swp(1,2)=0.5d0*dble(UXX-UYY)*ss2st
      &               -0.5d0*dble(UXY+UYX)*cs2st
-            strain(5)=-0.5d0*dble(UZX+UXZ)*ssst
+            swp(2,1)=swp(1,2)
+            swp(2,3)=-0.5d0*dble(UZX+UXZ)*ssst
      &               +0.5d0*dble(UYZ+UZY)*csst
-            strain(6)=-0.5d0*dble(UZX+UXZ)*csst
+            swp(3,2)=swp(2,3)
+            swp(3,1)=-0.5d0*dble(UZX+UXZ)*csst
      &               -0.5d0*dble(UYZ+UZY)*ssst
+            swp(1,3)=swp(3,1)
+c
+            do i=1,3
+              do j=1,3
+                sig(i,j)=0.d0
+                do k=1,3
+                  do l=1,3
+                    sig(i,j)=sig(i,j)+rot(i,k)*sig(k,l)*rot(j,l)
+                  enddo
+                enddo
+              enddo
+            enddo
+c
+            strain(1)=sig(1,1)
+            strain(2)=sig(2,2)
+            strain(3)=sig(3,3)
+            strain(4)=sig(1,2)
+            strain(5)=sig(2,3)
+            strain(6)=sig(3,1)
+c
             eii=strain(1)+strain(2)+strain(3)
             coobs(ieq,irec,4)=coobs(ieq,irec,4)
      &                      +larec*eii+2.d0*murec*strain(1)
@@ -128,10 +169,14 @@ c
               coobs(ieq,irec,9)=coobs(ieq,irec,9)+2.d0*murec*strain(6)
             endif
 c
+            swp(1,1)=-(dble(UXZ)*csst+dble(UYZ)*ssst)
+            swp(2,1)=-(dble(UXZ)*ssst-dble(UYZ)*csst)
+c
             coobs(ieq,irec,10)=coobs(ieq,irec,10)
-     &                       -(dble(UXZ)*csst+dble(UYZ)*ssst)
+     &                        +rot(1,1)*swp(1,1)+rot(1,2)*swp(2,1)
             coobs(ieq,irec,11)=coobs(ieq,irec,11)
-     &                       -(dble(UXZ)*ssst-dble(UYZ)*csst)
+     &                        +rot(2,1)*swp(1,1)+rot(2,2)*swp(2,1)
+c
             coobs(ieq,irec,12)=coobs(ieq,irec,12)-0.5d0*dble(UYX-UXY)
             coobs(ieq,irec,14)=coobs(ieq,irec,14)
      &                        -(2.d0*G0/REARTH)*dble(UZ)
