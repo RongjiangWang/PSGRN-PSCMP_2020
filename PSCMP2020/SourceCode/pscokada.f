@@ -25,7 +25,7 @@ c~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       integer*4 i,j,k,l,ieq,is,iptch,irec
       real*8 st,di,step_s,step_d,disn,dise
       real*8 csst,ssst,csra,ssra,csdi,ssdi
-      real*8 cs2st,ss2st,eii,phi,azi,bazi
+      real*8 cs2st,ss2st,eii,phi,azi,bazi,dis
       real*8 strain(6),sig(3,3),rot(3,3),swp(3,3)
 c
 c~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -91,11 +91,16 @@ c
             X=sngl(disn*csst+dise*ssst)
             Y=sngl(disn*ssst-dise*csst)
 c
-            azi=datan2(dise,disn)
-            call disazi(REARTH,latrec(irec),lonrec(irec),
-     &                  latref(is),lonref(is),disn,dise)
-            bazi=datan2(dise,disn)
-            phi=azi-(bazi-PI)
+            dis=dsqrt(disn**2+dise**2)
+            if(dis.gt.0.d0)then
+              azi=datan2(dise,disn)
+              call disazi(REARTH,latrec(irec),lonrec(irec),
+     &                    latref(is),lonref(is),disn,dise)
+              bazi=datan2(dise,disn)
+              phi=azi-(bazi-PI)
+            else
+              phi=0.d0
+            endif
             rot(1,1)=dcos(phi)
             rot(1,2)=-dsin(phi)
             rot(1,3)=0.d0
