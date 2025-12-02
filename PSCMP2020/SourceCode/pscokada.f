@@ -92,7 +92,7 @@ c
             Y=sngl(disn*ssst-dise*csst)
 c
             dis=dsqrt(disn**2+dise**2)
-            if(dis.gt.0.d0)then
+            if(dis.gt.ptch_s(is,iptch)+ptch_d(is,iptch))then
               azi=datan2(dise,disn)
               call disazi(REARTH,latrec(irec),lonrec(irec),
      &                    latref(is),lonref(is),disn,dise)
