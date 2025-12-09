@@ -398,9 +398,7 @@ c
                 call disazi(REARTH,latrec(irec),lonrec(irec),
      &                    plat(ips,izs),plon(ips,izs),disn,dise)
 
-                azi=azi-(datan2(dise,disn)-PI)
-              else
-                azi=0.d0
+                azi=datan2(dise,disn)-PI
               endif
               co=dcos(azi)
               si=dsin(azi)
