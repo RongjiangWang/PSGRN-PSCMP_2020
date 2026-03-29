@@ -1,1 +1,183 @@
+# PSGRN2020 MPI
 
+`PSGRN2020 MPI` is a public `MPI + OpenMP` parallelized distribution of `PSGRN2020` for Green-function computation in a multilayered viscoelastic half-space.
+
+This repository contains the source tree, build scripts, example inputs, and a numeric comparison utility so users can build, run, and validate the parallel executable themselves.
+
+## Copyright and License
+
+- The original `PSGRN2020` code is copyrighted by 
+`Wang, R., Lorenzo-Martín, F., and Roth, F. (2006). PSGRN/PSCMP - a new code for calculating co- and
+  post-seismic deformation, geoid and gravity changes based on the viscoelastic-gravitational disloc
+  ation theory. Computers & Geosciences, 32(4), 527-541. https://doi.org/10.1016/j.cageo.2005.08.006
+
+`.
+
+- The parallelized version 'PSGRN2020 MPI' is built by 
+Yong Zheng & Xuhao Zou 
+China University of Geosciences, Wuhan
+
+
+- The parallel implementation, repository packaging, and public redistribution are provided with the original author and the parallelized authors' permission.
+
+- This repository is distributed under `GPL-3.0`. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+## Features
+
+- Dynamic MPI scheduling over `(izs, isp)` task blocks
+- Worker ranks perform the numerical computation
+- `rank 0` collects task results and writes merged Green files
+- Existing OpenMP frequency-loop parallelism is preserved
+- A directory-level Green-function comparison tool is included
+
+## Repository Layout
+
+- `PSGRN2020/SourceCode/`
+  - Fortran sources
+  - `Makefile`
+- `PSGRN2020/InputFile/`
+  - example input templates
+- `scripts/build_psgrn2020_mpi.sh`
+  - helper build script
+- `tools/compare_psgrn_green.py`
+  - decoded Green-function comparison tool
+- `.github/workflows/build.yml`
+  - GitHub Actions build and smoke test
+
+## Requirements
+
+- Linux x86_64
+- `mpif90`
+- a Fortran compiler with OpenMP support
+
+Typical environments:
+
+- OpenMPI + GNU Fortran
+- Intel MPI + Intel/oneAPI Fortran
+
+Check your MPI compiler first:
+
+```bash
+mpif90 --version
+```
+
+## Build
+
+Option 1:
+
+```bash
+cd PSGRN2020/SourceCode
+make
+```
+
+This produces:
+
+```bash
+PSGRN2020/bin/psgrn2020_mpi
+```
+
+Option 2:
+
+```bash
+bash scripts/build_psgrn2020_mpi.sh
+```
+
+To override build flags:
+
+```bash
+cd PSGRN2020/SourceCode
+make FFLAGS="-O2 -fopenmp"
+```
+
+## Run
+
+The program reads the input-file path from standard input. Running from `PSGRN2020/SourceCode` is recommended.
+
+### Small smoke test
+
+```bash
+cd PSGRN2020/SourceCode
+mkdir -p ../test_output/mpi_np2_smoke
+export OMP_NUM_THREADS=1
+printf '../InputFile/psgrn2020-small-mpi-np2.inp\n' | mpirun -np 2 ../bin/psgrn2020_mpi
+```
+
+### 10 km example
+
+```bash
+cd PSGRN2020/SourceCode
+mkdir -p ./grnfcts10km
+export OMP_NUM_THREADS=1
+printf '../InputFile/psgrn2020-10km.inp\n' | mpirun -np 5 ../bin/psgrn2020_mpi
+```
+
+### Full 00 km run
+
+```bash
+cd PSGRN2020/SourceCode
+mkdir -p ./grnfcts00km
+export OMP_NUM_THREADS=1
+printf '../InputFile/psgrn2020-00km.inp\n' | mpirun -np 9 ../bin/psgrn2020_mpi
+```
+
+Notes:
+
+- For pure MPI tests, set `OMP_NUM_THREADS=1`.
+- For hybrid runs, increase `OMP_NUM_THREADS` per rank.
+- Make sure the output directory configured inside the input file exists and is writable.
+
+## Input Templates
+
+Included templates:
+
+- `psgrn2020-00km.inp`
+- `psgrn2020-10km.inp`
+- `psgrn2020-small-mpi-np1.inp`
+- `psgrn2020-small-mpi-np2.inp`
+- `psgrn2020-benchmark-mpi-np3.inp`
+- `psgrn2020-benchmark-mpi-np5.inp`
+- `psgrn2020-benchmark-mpi-np9.inp`
+
+## Validation
+
+The following checks were completed:
+
+- fresh small-case comparison: original serial reference vs MPI output
+- fresh `10km` comparison: original serial reference vs MPI `np=5`
+- formal `00km` benchmark: MPI `np=3 / 5 / 9` decoded against the serial reference
+
+Formal `00km` benchmark:
+
+| Configuration | Time (s) | Speedup vs serial |
+|---|---:|---:|
+| Serial `np=1` | `2216.77` | `1.00x` |
+| OpenMP `OMP_NUM_THREADS=4` | `725.56` | `3.06x` |
+| MPI `np=3`, `OMP=1` | `1235.25` | `1.79x` |
+| MPI `np=5`, `OMP=1` | `733.73` | `3.02x` |
+| MPI `np=9`, `OMP=1` | `520.10` | `4.26x` |
+
+Correctness:
+
+- each run produced `46` Green files
+- `Max abs diff = 0`
+- `Max rel diff = 0`
+
+## Output Comparison
+
+To compare a serial directory and an MPI directory:
+
+```bash
+python3 tools/compare_psgrn_green.py --dir-a serial_dir --dir-b mpi_dir
+```
+
+The script ignores the input-file-name header difference and compares the decoded numerical content.
+
+## Known Limitations
+
+- `rank 0` only performs scheduling and final merging
+- scaling becomes limited by task granularity and final merge/output
+- speedup is not expected to remain linear at high core counts
+
+## Citation
+
+If you use this program in academic work, please cite the original PSGRN/PSCMP publications and mention this parallel repository when appropriate.
