@@ -148,7 +148,7 @@ c
                 sig(i,j)=0.d0
                 do k=1,3
                   do l=1,3
-                    sig(i,j)=sig(i,j)+rot(i,k)*sig(k,l)*rot(j,l)
+                    sig(i,j)=sig(i,j)+rot(i,k)*swp(k,l)*rot(j,l)
                   enddo
                 enddo
               enddo
