@@ -42,4 +42,4 @@ Last update: Dec 1, 2025, in Zhuhai, by Rongjiang Wang
 ======================================================
 NOTE:
 
-A bug in a subroutine (pscokada.f) of PSCMP2020 was reported by users on July 20, 2026. It does not affect the computation results of the co- and post-seismic displacement fields, but it causes large errors in co- and post-seismic stress calculations.
+A bug in a subroutine (pscokada.f) of PSCMP2020 was reported by users. It does not affect the computation results of the co- and post-seismic displacement fields, but it causes large errors in co- and post-seismic stress calculations. The related subroutine was updated on July 20, 2026.
