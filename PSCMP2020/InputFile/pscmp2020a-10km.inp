@@ -1,5 +1,5 @@
 #=======================================================================================================
-# This is input file of FORTRAN program "pscmp2020a" for modeling post-seismic deformation induced by
+# This is input file of FORTRAN program "pscmp2020" for modeling post-seismic deformation induced by
 # earthquakes in multi-layered viscoelastic-gravitational media using the Green's function approach. The
 # earthquke source is represented by an arbitrary number of rectangular dislocation planes.
 #
